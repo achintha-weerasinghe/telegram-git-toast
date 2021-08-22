@@ -53,14 +53,14 @@ SECRET: ${secret}
     const message = getToastPushMessage(
       {
         pusher: gitBody.pusher.name,
-        branch: gitBody.reg,
+        branch: gitBody.ref,
         repoUrl: gitBody.repository.url,
         repo: gitBody.repository.name,
       },
       gitBody.commits
     );
 
-    await this.bot.telegram.sendMessage(id, message);
+    await this.bot.telegram.sendMessage(id, message, { parse_mode: "HTML" });
   }
 
   async handleUpdate(update: any) {
