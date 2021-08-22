@@ -12,10 +12,12 @@ function getCommitMessages(commits: any[]): string {
 
   commits.forEach((c) => {
     const id = (c.id as string).substring(0, 8);
-    let tempMessage = GIT_TOAST_COMMIT.replace("{{commitId}}", id);
+    let tempMessage = GIT_TOAST_COMMIT;
+    tempMessage = tempMessage.replace("{{commitId}}", id);
     tempMessage = tempMessage.replace("{{url}}", c.url);
     tempMessage = tempMessage.replace("{{commitMessage}}", c.message);
 
+    logger.debug("COMMITMESSAGES", c, tempMessage);
     commitMessages = commitMessages + tempMessage + "\n";
   });
 
@@ -29,14 +31,15 @@ export function getToastPushMessage(
   let message = GIT_TOAST_PUSH;
 
   Object.keys(data).forEach((key) => {
-    message = message.replace(`/{{${key}}}/g`, data[key]);
+    const replacer = new RegExp(`{{${key}}}`, "g");
+    message = message.replace(replacer, data[key]);
   });
 
   logger.debug("COMMITS", commits);
 
   if (commits && commits.length > 0) {
     let commitMessages = getCommitMessages(commits);
-    commitMessages = message.replace("{{commits}}", commitMessages);
+    message = message.replace("{{commits}}", commitMessages);
     return message;
   }
 
