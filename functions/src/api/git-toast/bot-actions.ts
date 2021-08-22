@@ -39,32 +39,40 @@ export class BotActions {
       };
 
       await this.gitToastBotCollection.doc(id).set(data);
-      await ctx.reply(`Welcome!
+      await ctx.reply(
+        `Welcome!
 Please add the following url and secret to your github webhook.
-URL: https://<BASE_URL>/chats/${id}
-SECRET: ${secret}
-`);
+<b>URL:</b> https://{BASE_URL}/chats/${id}
+<b>SECRET:</b> ${secret}
+
+<code>Note: Please configure only for pushes</code>`,
+        { parse_mode: "HTML" }
+      );
     });
   }
 
   async toast(chatData: GitToastDb, gitBody: any): Promise<void> {
     const id = chatData.id.replace(CHAT_ID_PREFIX, "");
 
-    logger.debug("BODY", gitBody);
-    logger.debug("COMMITS", gitBody.commits);
-    logger.debug("PUSHER", gitBody.pusher);
+    try {
+      const message = getToastPushMessage(
+        {
+          pusher: gitBody.pusher.name,
+          branch: gitBody.ref,
+          repoUrl: gitBody.repository.url,
+          repo: gitBody.repository.name,
+        },
+        gitBody.commits
+      );
 
-    const message = getToastPushMessage(
-      {
-        pusher: gitBody.pusher.name,
-        branch: gitBody.ref,
-        repoUrl: gitBody.repository.url,
-        repo: gitBody.repository.name,
-      },
-      gitBody.commits
-    );
-
-    await this.bot.telegram.sendMessage(id, message, { parse_mode: "HTML" });
+      await this.bot.telegram.sendMessage(id, message, { parse_mode: "HTML" });
+    } catch (error) {
+      logger.error(error);
+      await this.bot.telegram.sendMessage(
+        id,
+        "Error occured while generating the toast! Please check the logs for additional details."
+      );
+    }
   }
 
   async handleUpdate(update: any) {
