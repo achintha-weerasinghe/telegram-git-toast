@@ -1,11 +1,17 @@
 import { logger } from "firebase-functions";
 import { Context, Telegraf } from "telegraf";
+import * as admin from "firebase-admin";
+import { v4 as uuidv4 } from "uuid";
 import { BotEndpointNames } from "../../shared/enums/bot-endpoints";
+import { BotNames } from "../../shared/enums/bot-names";
+import { GitToastDb } from "../../shared/models/git-toast.model";
 
-interface MyContext extends Context {}
+const CHAT_ID_PREFIX = "chat";
 
 export class BotActions {
-  private bot = new Telegraf<MyContext>(this.token);
+  private bot = new Telegraf(this.token);
+  private db = admin.firestore();
+  private gitToastBotCollection = this.db.collection(BotNames.gitToast);
 
   constructor(
     private token: string,
@@ -22,9 +28,21 @@ export class BotActions {
   }
 
   init() {
-    this.bot.start((ctx) => {
-      logger.debug("CTX", ctx);
-      ctx.reply("Welcome!");
+    this.bot.start(async (ctx: Context) => {
+      const id = `${CHAT_ID_PREFIX}${ctx.message?.chat.id}`;
+      const secret = uuidv4();
+
+      const data: GitToastDb = {
+        id,
+        secret,
+      };
+
+      await this.gitToastBotCollection.doc(id).set(data);
+      await ctx.reply(`Welcome!
+Please add the following url and secret to your github webhook.
+URL: https://<BASE_URL>/chats/${id}
+SECRET: ${secret}
+`);
     });
   }
 

@@ -2,6 +2,7 @@ import * as functions from "firebase-functions";
 import * as express from "express";
 import { logger } from "firebase-functions";
 import { BotActions } from "./bot-actions";
+import { isFromGithub } from "../../shared/validators/github-validator";
 
 export const gitToastRouter = express.Router();
 
@@ -35,13 +36,12 @@ gitToastRouter.post(
 );
 
 gitToastRouter.post(
-  `/chat/:id`,
+  `/chats/:id`,
+  isFromGithub,
   async (req: express.Request, res: express.Response) => {
     const body = req.body;
 
-    if (!body) {
-      return res.status(200).send({ success: true });
-    }
+    logger.debug("GITHUB BODY", JSON.stringify(body));
 
     return res.status(200).send({ success: true });
   }
