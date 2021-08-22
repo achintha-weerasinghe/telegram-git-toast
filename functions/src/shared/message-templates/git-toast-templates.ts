@@ -1,5 +1,3 @@
-import { logger } from "firebase-functions";
-
 const GIT_TOAST_PUSH = `<a href="https://github.com/{{pusher}}">{{pusher}}</a> pushed to branch {{branch}} of <a href="{{repoUrl}}">{{repo}}</a>
 
 <b>Commits:</b>
@@ -16,8 +14,6 @@ function getCommitMessages(commits: any[]): string {
     tempMessage = tempMessage.replace("{{commitId}}", id);
     tempMessage = tempMessage.replace("{{url}}", c.url);
     tempMessage = tempMessage.replace("{{commitMessage}}", c.message);
-
-    logger.debug("COMMITMESSAGES", c, tempMessage);
     commitMessages = commitMessages + tempMessage + "\n";
   });
 
@@ -34,8 +30,6 @@ export function getToastPushMessage(
     const replacer = new RegExp(`{{${key}}}`, "g");
     message = message.replace(replacer, data[key]);
   });
-
-  logger.debug("COMMITS", commits);
 
   if (commits && commits.length > 0) {
     let commitMessages = getCommitMessages(commits);
