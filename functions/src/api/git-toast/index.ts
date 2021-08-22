@@ -41,7 +41,7 @@ gitToastRouter.post(
   async (req: express.Request, res: express.Response) => {
     const body = req.body;
 
-    logger.debug("GITHUB BODY", JSON.stringify(body));
+    await botActions.toast(res.locals.data, body);
 
     return res.status(200).send({ success: true });
   }

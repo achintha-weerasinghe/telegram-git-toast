@@ -5,6 +5,7 @@ import { v4 as uuidv4 } from "uuid";
 import { BotEndpointNames } from "../../shared/enums/bot-endpoints";
 import { BotNames } from "../../shared/enums/bot-names";
 import { GitToastDb } from "../../shared/models/git-toast.model";
+import { getToastPushMessage } from "../../shared/message-templates/git-toast-templates";
 
 const CHAT_ID_PREFIX = "chat";
 
@@ -44,6 +45,22 @@ URL: https://<BASE_URL>/chats/${id}
 SECRET: ${secret}
 `);
     });
+  }
+
+  async toast(chatData: GitToastDb, gitBody: any): Promise<void> {
+    const id = chatData.id.replace(CHAT_ID_PREFIX, "");
+
+    const message = getToastPushMessage(
+      {
+        pusher: gitBody.pusher.name,
+        branch: gitBody.reg,
+        repoUrl: gitBody.repository.url,
+        repo: gitBody.repository.name,
+      },
+      gitBody.commits
+    );
+
+    await this.bot.telegram.sendMessage(id, message);
   }
 
   async handleUpdate(update: any) {

@@ -35,6 +35,8 @@ export async function isFromGithub(
       return res.status(401).send({ code: 401, message: "Unauthorized" });
     }
 
+    res.locals.data = data;
+
     return next();
   } catch (error) {
     return res.status(401).send({ code: 401, message: "Unauthorized" });
