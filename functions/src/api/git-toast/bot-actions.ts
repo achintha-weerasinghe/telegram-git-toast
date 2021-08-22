@@ -1,5 +1,6 @@
 import { logger } from "firebase-functions";
 import { Context, Telegraf } from "telegraf";
+import { BotEndpointNames } from "../../shared/enums/bot-endpoints";
 
 interface MyContext extends Context {}
 
@@ -13,7 +14,7 @@ export class BotActions {
   ) {
     logger.debug("Telegram webhook setting up...");
     this.bot.telegram.setWebhook(
-      `https://${this.region}-${this.projectId}.cloudfunctions.net/api/git-notify/bot${this.token}`
+      `https://${this.region}-${this.projectId}.cloudfunctions.net/botsapi/${BotEndpointNames.gitToast}/bot${this.token}`
     );
     logger.debug(
       `Telegram webhook setting up success! ${this.region} ${this.projectId}`
@@ -22,7 +23,7 @@ export class BotActions {
 
   init() {
     this.bot.start((ctx) => {
-      console.log(ctx);
+      logger.debug("CTX", ctx);
       ctx.reply("Welcome!");
     });
   }

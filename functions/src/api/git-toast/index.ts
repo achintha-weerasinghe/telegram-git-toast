@@ -24,9 +24,23 @@ gitToastRouter.post(
     }
 
     try {
+      logger.debug("BODY", body);
       await botActions.handleUpdate(body);
     } catch (error) {
       logger.error("ERROR WHILE HANDLING UPDATE", error);
+    }
+
+    return res.status(200).send({ success: true });
+  }
+);
+
+gitToastRouter.post(
+  `/chat/:id`,
+  async (req: express.Request, res: express.Response) => {
+    const body = req.body;
+
+    if (!body) {
+      return res.status(200).send({ success: true });
     }
 
     return res.status(200).send({ success: true });
