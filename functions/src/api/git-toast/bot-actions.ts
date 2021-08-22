@@ -1,7 +1,7 @@
-import { logger } from "firebase-functions";
 import { Context, Telegraf } from "telegraf";
 import * as admin from "firebase-admin";
 import { v4 as uuidv4 } from "uuid";
+import { logger } from "firebase-functions";
 import { BotEndpointNames } from "../../shared/enums/bot-endpoints";
 import { BotNames } from "../../shared/enums/bot-names";
 import { GitToastDb } from "../../shared/models/git-toast.model";
@@ -49,6 +49,10 @@ SECRET: ${secret}
 
   async toast(chatData: GitToastDb, gitBody: any): Promise<void> {
     const id = chatData.id.replace(CHAT_ID_PREFIX, "");
+
+    logger.debug("BODY", gitBody);
+    logger.debug("COMMITS", gitBody.commits);
+    logger.debug("PUSHER", gitBody.pusher);
 
     const message = getToastPushMessage(
       {
