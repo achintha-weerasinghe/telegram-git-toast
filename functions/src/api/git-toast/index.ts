@@ -40,8 +40,9 @@ gitToastRouter.post(
   isFromGithub,
   async (req: express.Request, res: express.Response) => {
     const body = req.body;
+    const id = req.params.id;
 
-    await botActions.toast(res.locals.data, body);
+    await botActions.toast(id, body);
 
     return res.status(200).send({ success: true });
   }

@@ -1,11 +1,8 @@
 import * as express from "express";
-import * as admin from "firebase-admin";
 import * as CryptoJs from "crypto-js";
-import { BotNames } from "../enums/bot-names";
-import { GitToastDb } from "../models/git-toast.model";
+import { config } from "firebase-functions";
 
-const db = admin.firestore();
-const gitToastBotCollection = db.collection(BotNames.gitToast);
+const GIT_SECRET = config().gittoast.secret;
 
 export async function isFromGithub(
   req: express.Request,
@@ -13,24 +10,18 @@ export async function isFromGithub(
   next: express.NextFunction
 ) {
   const body = req.body;
-  const id = req.params.id;
   const signature = req.headers["x-hub-signature-256"];
 
   try {
-    const data: GitToastDb = (
-      await gitToastBotCollection.doc(id).get()
-    ).data() as GitToastDb;
 
     const expectedSignature = `sha256=${CryptoJs.HmacSHA256(
       JSON.stringify(body),
-      data.secret
+      GIT_SECRET
     )}`;
 
     if (expectedSignature !== signature) {
       return res.status(401).send({ code: 401, message: "Unauthorized" });
     }
-
-    res.locals.data = data;
 
     return next();
   } catch (error) {
